@@ -3,7 +3,7 @@
 
 
 
-g++ --std=c++17 -I . Connection.cc ListeningSocket.cc main.cc && ./a.out
+rm -f stream.db && g++ --std=c++17 -I . Connection.cc ListeningSocket.cc main.cc && ./a.out
 
 
 
@@ -18,3 +18,8 @@ g++ --std=c++17 -I . Connection.cc ListeningSocket.cc main.cc && ./a.out
 
 
 ab -n 100 -c 1 http://127.0.0.1:7000/
+
+
+hexdump -C stream.db
+
+telnet 127.0.0.1 7000
