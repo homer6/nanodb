@@ -67,16 +67,21 @@ Connection::~Connection(){
 
 string Connection::send( const string& message ) const{
 
+	//cout << "writing:" << message.size() << " bytes." << endl;
+
     int n = write( this->connection_fd, message.c_str(), message.size() );
     if( n < 0 ){
     	throw std::runtime_error( "Error sending message." );
-    } 
+    }
+
+    //cout << "written: " << n << " bytes." << endl;
 
     string response;
    
     constexpr int buffer_size = 4096;
 	char response_buffer[buffer_size];
 
+	/*
     n = read( this->connection_fd, response_buffer, buffer_size );
     if( n < 0 ){
     	throw std::runtime_error( "Error reading response." );
@@ -84,7 +89,8 @@ string Connection::send( const string& message ) const{
 
     if( n > 0 ){
     	response += string( response_buffer, n );
-    }    
+    }
+    */
 
     return response;
 

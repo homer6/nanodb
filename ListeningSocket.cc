@@ -43,7 +43,7 @@ ListeningSocket::ListeningSocket( const string& address, const int port )
 		throw std::runtime_error( "Error on binding." );
 	}
 
-	constexpr int backlog_queue = 5;
+	constexpr int backlog_queue = 1000;
 
 	int listen_result = ::listen( this->listening_fd, backlog_queue );
 	if( listen_result < 0 ){
@@ -66,7 +66,7 @@ ListeningSocket::~ListeningSocket(){
 
 void ListeningSocket::listen(){
 
-	constexpr int buffer_size = 4 * 1024 * 1024; // 4 MiB
+	constexpr int buffer_size = 128 * 1024; // 128 kiB
 	char buffer[buffer_size];
 
 	socklen_t client_length = sizeof( this->client_address );
@@ -81,25 +81,39 @@ void ListeningSocket::listen(){
 			throw std::runtime_error("Error accepting connection.");
 		}
 
-		//bzero( buffer, buffer_size );
-		int n = read( this->client_fd, buffer, buffer_size );
-		if( n < 0 ){
-			throw std::runtime_error("Error reading from socket.");
-		}
+		bool continue_reading = true;
 
-		
-		if( n > 0 ){
-			string message( buffer, n );
-			database_file << message;
-			database_file.flush();
-		}
+		while( continue_reading ){
 
-		string response = "OK";
+			int n = read( this->client_fd, buffer, buffer_size );
+			if( n < 0 ){
+				throw std::runtime_error("Error reading from socket.");
+			}
 
-		n = write( this->client_fd, response.c_str(), response.size() );
-		if( n < 0 ){
-			close( this->client_fd );
-			throw std::runtime_error("Error writing response.");
+			//cout << "read: " << n << " bytes." << endl;
+			
+			if( n > 0 ){
+				string message( buffer, n );
+				database_file << message;
+				database_file.flush();
+			}
+
+			if( n == 0 ){
+				continue_reading = false;
+			}
+
+			/*
+			string response = std::to_string(n) + " - OK\n";
+
+			n = write( this->client_fd, response.c_str(), response.size() );
+			if( n < 0 ){
+				close( this->client_fd );
+				continue_reading = false;
+				continue;
+				//throw std::runtime_error("Error writing response.");
+			}
+			*/
+
 		}
 
 		int result = close( this->client_fd );

@@ -3,16 +3,16 @@
 
 
 
-rm -f stream.db && g++ --std=c++17 -I . Connection.cc ListeningSocket.cc main.cc && ./a.out
+rm -f stream.db && g++ --std=c++17 -I . -o sdb Connection.cc ListeningSocket.cc main.cc && ./sdb
 
 
 
 //server
-./a.out
+./sdb
 
 
 //client
-./a.out 1
+cat filename.txt | ./sdb 1
 
 
 
