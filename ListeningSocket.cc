@@ -17,6 +17,7 @@ using std::cerr;
 
 #include <strings.h>    //bcopy()
 
+#include <fstream>
 
 
 ListeningSocket::ListeningSocket( const string& address, const int port )
@@ -65,11 +66,14 @@ ListeningSocket::~ListeningSocket(){
 
 void ListeningSocket::listen(){
 
-	constexpr int buffer_size = 4096;
+	constexpr int buffer_size = 4 * 1024 * 1024; // 4 MiB
 	char buffer[buffer_size];
 
 	socklen_t client_length = sizeof( this->client_address );
 
+	std::ofstream database_file;
+	database_file.open( "stream.db" );
+	
 	while( 1 ){
 
 		this->client_fd = accept( this->listening_fd, (struct sockaddr *) &this->client_address, &client_length );
@@ -83,9 +87,11 @@ void ListeningSocket::listen(){
 			throw std::runtime_error("Error reading from socket.");
 		}
 
+		
 		if( n > 0 ){
 			string message( buffer, n );
-			cout << "Message: " << message << endl;
+			database_file << message;
+			database_file.flush();
 		}
 
 		string response = "OK";
@@ -102,5 +108,7 @@ void ListeningSocket::listen(){
 		}
 
 	}
+
+	database_file.close();
 
 }
