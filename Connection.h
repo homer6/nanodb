@@ -23,7 +23,10 @@ class Connection{
 
 		int connection_fd = 0;
 
+		in_addr_t address_type;
+		socklen_t address_length;
+
 		struct sockaddr_in server_address;
-		struct hostent *server;
+		struct sockaddr_in6 server_address_v6;
 
 };
