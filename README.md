@@ -3,23 +3,34 @@
 
 
 
-rm -f stream.db && g++ --std=c++17 -I . -o sdb Connection.cc ListeningSocket.cc main.cc && ./sdb
+make && rm -f stream.db && ./sdb -s
 
+./sdb --help
 
 
 //server
-./sdb
+./sdb -s
 
 
 //client
-cat filename.txt | ./sdb 1
+cat filename.txt | ./sdb -i
 
 
 
 
-ab -n 100 -c 1 http://127.0.0.1:7000/
+ab -n 100 -c 1 http://127.0.0.1:7250/
 
 
 hexdump -C stream.db
 
-telnet 127.0.0.1 7000
+telnet 127.0.0.1 7250
+
+
+tail -f following_file.txt | ./sdb -i
+
+
+
+
+git clone https://github.com/taywee/args
+cd args
+sudo make install
