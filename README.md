@@ -34,3 +34,11 @@ tail -f following_file.txt | ./sdb -i
 git clone https://github.com/taywee/args
 cd args
 sudo make install
+
+
+
+
+ipv6:
+
+make && rm -f stream.db && ./sdb -s -h ::
+./sdb -h ::1 hello

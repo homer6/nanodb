@@ -98,7 +98,7 @@ Connection::Connection( const string& address, const int port )
 
 	    this->server_address.sin_family = this->address_type;
 	    bcopy( 
-			(char *) address_info_result_ptr->ai_addr,
+			(char *) &address->sin_addr.s_addr,
 			(char *) &this->server_address.sin_addr.s_addr,
 			address_info_result_ptr->ai_addrlen
 	    );
@@ -159,7 +159,7 @@ Connection::Connection( const string& address, const int port )
 
 	    this->server_address_v6.sin6_family = this->address_type;
 	    bcopy( 
-			(char *) address_info_result_ptr->ai_addr, 
+			(char *) &address->sin6_addr.s6_addr, 
 			(char *) &this->server_address_v6.sin6_addr.s6_addr,
 			address_info_result_ptr->ai_addrlen
 	    );

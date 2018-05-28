@@ -47,8 +47,36 @@ ListeningSocket::ListeningSocket( const string& address, const int port )
 
 		this->address_type = address_info_result_ptr->ai_family;
 
-		
+
+
+
 		if( this->address_type == AF_INET ){
+
+			struct sockaddr_in *address = (struct sockaddr_in *) address_info_result_ptr->ai_addr;
+
+			char address_string[256];
+			if( inet_ntop( this->address_type, &address->sin_addr.s_addr, address_string, 256 ) == nullptr ){
+				throw std::runtime_error("Could not convert network to presentation.");
+			}
+
+			cout << "address_info_result_ptr->ai_addr->sin_family: " << address->sin_family << endl;
+			cout << "address_info_result_ptr->ai_addr->sin_port: " << address->sin_port << endl;
+			cout << "address_info_result_ptr->ai_addr->sin_addr.s_addr: " << address_string << endl;
+
+			/*           
+				struct sockaddr_in {
+	               sa_family_t    sin_family; /* address family: AF_INET
+	               in_port_t      sin_port;   /* port in network byte order 
+	               struct in_addr sin_addr;   /* internet address
+	           };
+
+	           /* Internet address. 
+	           struct in_addr {
+	               uint32_t       s_addr;     /* address in network byte order
+	           };
+	        */
+
+
 
 			bzero( (char *) &this->server_address, sizeof(this->server_address) );
 			bzero( (char *) &this->client_address, sizeof(this->client_address) );
@@ -66,20 +94,63 @@ ListeningSocket::ListeningSocket( const string& address, const int port )
 
 				this->server_address.sin_family = this->address_type;
 				this->server_address.sin_port = htons(port);
+				bcopy( 
+					(char *) &address->sin_addr.s_addr,
+					(char *) &this->server_address.sin_addr.s_addr,
+					address_info_result_ptr->ai_addrlen
+				);
 
+				this->server_address.sin_addr.s_addr = INADDR_ANY;
+
+				/*
 				int inet_pton_result = inet_pton( this->address_type, address.c_str(), (struct in_addr*) &this->server_address.sin_addr );
 				if( inet_pton_result == 0 ){
 					throw std::runtime_error("inet_pton: Invalid server address.");
-				}
+				}*/
 
-				if( bind(this->listening_fd, (struct sockaddr *) &this->server_address, sizeof(this->server_address)) < 0 ){
+				int bind_result = bind( this->listening_fd, (struct sockaddr *) &this->server_address, sizeof(this->server_address) );
+				if( bind_result < 0 ){
 					close( this->listening_fd );
+					perror("bind");
 					throw std::runtime_error( "Error on binding." );
 				}
 
 
 
+
 		}else if( this->address_type == AF_INET6 ){
+
+
+			/*
+
+	           struct sockaddr_in6 {
+	               sa_family_t     sin6_family;   // AF_INET6
+	               in_port_t       sin6_port;     // port number 
+	               uint32_t        sin6_flowinfo; // IPv6 flow information 
+	               struct in6_addr sin6_addr;     /* IPv6 address 
+	               uint32_t        sin6_scope_id; /* Scope ID (new in 2.4) 
+	           };
+
+	           struct in6_addr {
+	               unsigned char   s6_addr[16];   /* IPv6 address
+	           };
+
+			*/
+
+	        struct sockaddr_in6 *address = (struct sockaddr_in6 *) address_info_result_ptr->ai_addr;
+
+			char address_string[256];
+			if( inet_ntop( this->address_type, &address->sin6_addr.s6_addr, address_string, 256 ) == nullptr ){
+				throw std::runtime_error("Could not convert network to presentation.");
+			}
+
+
+			cout << "address_info_result_ptr->ai_addr->sin6_family: " << address->sin6_family << endl;
+			cout << "address_info_result_ptr->ai_addr->sin6_port: " << address->sin6_port << endl;
+			cout << "address_info_result_ptr->ai_addr->sin6_flowinfo: " << address->sin6_flowinfo << endl;
+			cout << "address_info_result_ptr->ai_addr->sin6_addr.s6_addr: " << address_string << endl;
+			cout << "address_info_result_ptr->ai_addr->sin6_scope_id: " << address->sin6_scope_id << endl;
+
 
 			bzero( (char *) &this->server_address_v6, sizeof(this->server_address_v6) );
 			bzero( (char *) &this->client_address_v6, sizeof(this->client_address_v6) );
@@ -98,13 +169,28 @@ ListeningSocket::ListeningSocket( const string& address, const int port )
 				this->server_address_v6.sin6_family = this->address_type;
 				this->server_address_v6.sin6_port = htons(port);
 
+				bcopy( 
+					(char *) &address->sin6_addr.s6_addr,
+					(char *) &this->server_address_v6.sin6_addr.s6_addr,
+					address_info_result_ptr->ai_addrlen
+				);
+
+				struct in6_addr ia6 = IN6ADDR_ANY_INIT;
+
+				this->server_address_v6.sin6_addr = ia6; //in6addr_any
+
+				
+
+				/*
 				int inet_pton_result = inet_pton( this->address_type, address.c_str(), (struct in6_addr*) &this->server_address_v6.sin6_addr );
 				if( inet_pton_result == 0 ){
 					throw std::runtime_error("inet_pton(v6): Invalid server address.");
-				}
+				}*/
 
-				if( bind(this->listening_fd, (struct sockaddr *) &this->server_address_v6, this->address_length) < 0 ){
+				int bind_result = bind( this->listening_fd, (struct sockaddr *) &this->server_address_v6, sizeof(this->server_address_v6) );
+				if( bind_result < 0 ){
 					close( this->listening_fd );
+					perror("bind");
 					throw std::runtime_error( "Error on binding." );
 				}
 
@@ -189,8 +275,8 @@ void ListeningSocket::listen(){
 
 			n = write( this->client_fd, response.c_str(), response.size() );
 			if( n < 0 ){
-				close( this->client_fd );
-				continue_reading = false;
+				//close( this->client_fd );
+				//continue_reading = false;
 				continue;
 				//throw std::runtime_error("Error writing response.");
 			}
