@@ -111,16 +111,27 @@ int main( int argc, char** argv ){
 			bool continue_reading = true;
 			bool first_read_worked = false;
 
+			int sleep_count = 0;
 
 			while( continue_reading ){
 
 				int n = read( STDIN_FILENO, buffer, buffer_size );
-				if( n < 0 ){					
-					sleep(1);
+				if( n < 0 ){
+					cout << "sleeping" << endl;
+					//
+					sleep_count++;
+					if( sleep_count >= 200 ){
+						cout << "actual sleep" << endl;
+						sleep(1);
+						sleep_count = 0;
+					}
+
 					continue;
 				}
 
-				//cout << "read: " << n << " bytes." << endl;
+				sleep_count = 0;
+
+				cout << "read: " << n << " bytes." << endl;
 				
 				if( n > 0 ){
 					string message( buffer, n );

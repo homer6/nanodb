@@ -270,6 +270,7 @@ void ListeningSocket::listen(){
 				continue_reading = false;
 			}
 
+			/*
 			
 			string response = "HTTP/1.1 200 OK\nContent-Length: 0\n\n";
 
@@ -279,7 +280,7 @@ void ListeningSocket::listen(){
 				//continue_reading = false;
 				continue;
 				//throw std::runtime_error("Error writing response.");
-			}
+			}*/
 			
 
 		}
