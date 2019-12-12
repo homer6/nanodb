@@ -1,3 +1,6 @@
-/a.out
-/stream.db
-/sdb
+/CMakeCache.txt
+/CMakeFiles/
+/Makefile
+/build/*
+/cmake_install.cmake
+/nano.db

@@ -32,7 +32,7 @@ void signal_handler( int signal ){
 int main( int argc, char** argv ){
 
 
-    args::ArgumentParser parser( "StreamDB - A simple, streaming database.", "MIT License. Source and issues: https://github.com/homer6/streamdb" );
+    args::ArgumentParser parser( "NanoDB - A simple, streaming database.", "MIT License. Source and issues: https://github.com/homer6/nanodb" );
     args::HelpFlag help( parser, "help", "Display this help menu", {"help"} );
     
     args::Flag read_from_stdin( parser, "stdin", "Read from stdin (client).", {'i', "stdin"} );
