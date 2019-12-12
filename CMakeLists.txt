@@ -24,6 +24,9 @@ set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../build )
 set( NANODB_SOURCES
     src/Connection.cc
     src/ListeningSocket.cc
+    
+    src/Application.cc
+    src/CollectorApplication.cc
 )
 
 
